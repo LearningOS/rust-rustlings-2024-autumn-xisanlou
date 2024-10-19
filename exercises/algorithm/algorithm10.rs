@@ -2,7 +2,7 @@
 	graph
 	This problem requires you to implement a basic graph functio
 */
-// I AM NOT DONE
+
 
 use std::collections::{HashMap, HashSet};
 use std::fmt;
@@ -28,9 +28,9 @@ impl Graph for UndirectedGraph {
     fn adjacency_table(&self) -> &HashMap<String, Vec<(String, i32)>> {
         &self.adjacency_table
     }
-    fn add_edge(&mut self, edge: (&str, &str, i32)) {
+    //fn add_edge(&mut self, edge: (&str, &str, i32)) {
         //TODO
-    }
+    //}
 }
 pub trait Graph {
     fn new() -> Self;
@@ -38,10 +38,46 @@ pub trait Graph {
     fn adjacency_table(&self) -> &HashMap<String, Vec<(String, i32)>>;
     fn add_node(&mut self, node: &str) -> bool {
         //TODO
-		true
+        if self.contains(node) {
+            false
+        } else {
+            self.adjacency_table_mutable().insert(node.to_string(), Vec::new());
+		    true
+        }
+        
     }
     fn add_edge(&mut self, edge: (&str, &str, i32)) {
         //TODO
+        let (node0, node1, wight) = edge;
+        self.add_node(node0);
+        self.add_node(node1);
+
+        let mut edges_node0 = self.adjacency_table_mutable().get_mut(node0).unwrap();
+        if let Some((num, _)) = edges_node0
+                .iter()
+                .enumerate()
+                .find(|(_, (name, _))| *name == node1.to_string()) 
+        {
+            edges_node0[num] = (node1.to_string(), wight);
+        } else {
+            edges_node0.push((node1.to_string(), wight));
+        }
+        drop(edges_node0);
+
+        let mut edges_node1 = self.adjacency_table_mutable().get_mut(node1).unwrap();
+        if let Some((num, _)) = edges_node1
+                .iter()
+                .enumerate()
+                .find(|(_, (name, _))| *name == node0.to_string()) 
+        {
+            edges_node1[num] = (node0.to_string(), wight);
+        } else {
+            edges_node1.push((node0.to_string(), wight));
+        }
+
+        
+                
+
     }
     fn contains(&self, node: &str) -> bool {
         self.adjacency_table().get(node).is_some()
@@ -69,6 +105,7 @@ mod test_undirected_graph {
         graph.add_edge(("a", "b", 5));
         graph.add_edge(("b", "c", 10));
         graph.add_edge(("c", "a", 7));
+        println!("{:?} ##### {:?} ", graph.nodes().len(), graph.edges());
         let expected_edges = [
             (&String::from("a"), &String::from("b"), 5),
             (&String::from("b"), &String::from("a"), 5),
